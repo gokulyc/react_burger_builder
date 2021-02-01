@@ -8,6 +8,8 @@ import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
 
 import lodash from "lodash";
 
+import Alert from "@material-ui/lab/Alert";
+
 const INGREDIENT_PRICES = {
   salad: 0.5,
   cheese: 0.4,
@@ -29,7 +31,8 @@ class BurgerBuilder extends Component {
     totalPrice: 4,
     purchasable: false,
     isPurchasing: false,
-  };
+    showContinue:false
+    };
   updatePurchaseState(ingredients) {
     const sum = lodash.values(ingredients).reduce((sum, el) => {
       return sum + el;
@@ -42,6 +45,13 @@ class BurgerBuilder extends Component {
   purchaseCancelHandler = () => {
     this.setState({ isPurchasing: false });
   };
+  purchaseContinueHandler = () => {
+    this.setState({ showContinue: true });
+    // alert("You continue!");
+  };
+  closeAlert=()=>{
+    this.setState({ showContinue: false });
+  }
 
   addIngredientHandler = (type) => {
     const oldCount = this.state.ingredients[type];
@@ -85,7 +95,12 @@ class BurgerBuilder extends Component {
           show={this.state.isPurchasing}
           modalClosed={this.purchaseCancelHandler}
         >
-          <OrderSummary ingredients={this.state.ingredients} />
+          <OrderSummary
+            ingredients={this.state.ingredients}
+            purchaseCancelled={this.purchaseCancelHandler}
+            purchaseContinued={this.purchaseContinueHandler}
+          />
+          {this.state.showContinue?<Alert onClose={()=>{this.closeAlert()}} >You want to continue !</Alert>:null}
         </Modal>
         <Burger ingredients={this.state.ingredients} />
         <BuildControls
