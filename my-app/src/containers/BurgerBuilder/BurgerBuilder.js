@@ -3,6 +3,8 @@ import React, { Component } from "react";
 import HDiv from "../../hoc/HDiv";
 import Burger from "../../components/Burger/Burger";
 import BuildControls from "../../components/Burger/BuildControls/BuildControls";
+import Modal from "../../components/UI/Modal/Modal";
+import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
 
 import lodash from "lodash";
 
@@ -26,6 +28,7 @@ class BurgerBuilder extends Component {
     },
     totalPrice: 4,
     purchasable: false,
+    isPurchasing: false,
   };
   updatePurchaseState(ingredients) {
     const sum = lodash.values(ingredients).reduce((sum, el) => {
@@ -33,6 +36,13 @@ class BurgerBuilder extends Component {
     }, 0);
     this.setState({ purchasable: sum > 0 });
   }
+  purchaseHandler = () => {
+    this.setState({ isPurchasing: true });
+  };
+  purchaseCancelHandler = () => {
+    this.setState({ isPurchasing: false });
+  };
+
   addIngredientHandler = (type) => {
     const oldCount = this.state.ingredients[type];
     const updatedCount = oldCount + 1;
@@ -71,6 +81,12 @@ class BurgerBuilder extends Component {
     }
     return (
       <HDiv>
+        <Modal
+          show={this.state.isPurchasing}
+          modalClosed={this.purchaseCancelHandler}
+        >
+          <OrderSummary ingredients={this.state.ingredients} />
+        </Modal>
         <Burger ingredients={this.state.ingredients} />
         <BuildControls
           ingredientAdded={this.addIngredientHandler}
@@ -78,6 +94,7 @@ class BurgerBuilder extends Component {
           disabled={disabledInfo}
           price={this.state.totalPrice.toFixed(2)}
           purchasable={this.state.purchasable}
+          isOrdered={this.purchaseHandler}
         />
       </HDiv>
     );
