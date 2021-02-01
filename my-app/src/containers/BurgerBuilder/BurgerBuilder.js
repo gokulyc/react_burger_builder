@@ -7,8 +7,10 @@ import Modal from "../../components/UI/Modal/Modal";
 import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
 
 import lodash from "lodash";
-
+import Snackbar from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
+import CircularProgress from "@material-ui/core/CircularProgress";
+
 import axios from "../../axios-orders";
 
 const INGREDIENT_PRICES = {
@@ -33,6 +35,8 @@ class BurgerBuilder extends Component {
     purchasable: false,
     isPurchasing: false,
     showContinue: false,
+    loading: false,
+    errMsg: "",
   };
   updatePurchaseState(ingredients) {
     const sum = lodash.values(ingredients).reduce((sum, el) => {
@@ -47,6 +51,9 @@ class BurgerBuilder extends Component {
     this.setState({ isPurchasing: false });
   };
   purchaseContinueHandler = () => {
+    this.setState((prevState) => {
+      return { ...prevState, loading: true };
+    });
     const order = {
       ingredients: this.state.ingredients,
       price: this.state.totalPrice.toFixed(2),
@@ -63,8 +70,16 @@ class BurgerBuilder extends Component {
     // console.log(axios.getUri());
     axios
       .post("/orders.json", order)
-      .then((res) => console.log(res))
-      .catch((err) => console.error(err));
+      .then((res) => {
+        this.setState({ loading: false, isPurchasing: false });
+      })
+      .catch((err) => {
+        this.setState({
+          loading: false,
+          isPurchasing: false,
+          errMsg: err.message,
+        });
+      });
     this.setState((prevState) => {
       return { ...prevState, showContinue: true };
     });
@@ -103,7 +118,21 @@ class BurgerBuilder extends Component {
     this.setState({ totalPrice: newPrice, ingredients: updatedIngredients });
     this.updatePurchaseState(updatedIngredients);
   };
+  handleSnackClose = () => {
+    this.setState({ errMsg: "" });
+  };
   render() {
+    let orderSummary = (
+      <OrderSummary
+        ingredients={this.state.ingredients}
+        purchaseCancelled={this.purchaseCancelHandler}
+        purchaseContinued={this.purchaseContinueHandler}
+        price={this.state.totalPrice.toFixed(2)}
+      />
+    );
+    if (this.state.loading) {
+      orderSummary = <CircularProgress />;
+    }
     const disabledInfo = {
       ...this.state.ingredients,
     };
@@ -112,16 +141,26 @@ class BurgerBuilder extends Component {
     }
     return (
       <HDiv>
+        {this.state.errMsg.length > 0 ? (
+          <Snackbar
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "center",
+            }}
+            open={this.state.errMsg.length > 0}
+            autoHideDuration={6000}
+            onClose={this.handleSnackClose}
+          >
+            <Alert onClose={this.handleSnackClose} severity="error">
+              {this.state.errMsg}
+            </Alert>
+          </Snackbar>
+        ) : null}
         <Modal
           show={this.state.isPurchasing}
           modalClosed={this.purchaseCancelHandler}
         >
-          <OrderSummary
-            ingredients={this.state.ingredients}
-            purchaseCancelled={this.purchaseCancelHandler}
-            purchaseContinued={this.purchaseContinueHandler}
-            price={this.state.totalPrice.toFixed(2)}
-          />
+          {orderSummary}
           {this.state.showContinue ? (
             <Alert onClose={this.closeAlert}>You want to continue !</Alert>
           ) : null}
