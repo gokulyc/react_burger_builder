@@ -99,8 +99,9 @@ class BurgerBuilder extends Component {
             ingredients={this.state.ingredients}
             purchaseCancelled={this.purchaseCancelHandler}
             purchaseContinued={this.purchaseContinueHandler}
+            price={this.state.totalPrice.toFixed(2)}
           />
-          {this.state.showContinue?<Alert onClose={()=>{this.closeAlert()}} >You want to continue !</Alert>:null}
+          {this.state.showContinue?<Alert onClose={this.closeAlert} >You want to continue !</Alert>:null}
         </Modal>
         <Burger ingredients={this.state.ingredients} />
         <BuildControls
