@@ -25,12 +25,7 @@ class BurgerBuilder extends Component {
   //     this.state = {...}
   // }
   state = {
-    ingredients: {
-      salad: 0,
-      bacon: 0,
-      cheese: 0,
-      meat: 0,
-    },
+    ingredients: null,
     totalPrice: 4,
     purchasable: false,
     isPurchasing: false,
@@ -38,6 +33,17 @@ class BurgerBuilder extends Component {
     loading: false,
     errMsg: "",
   };
+
+  componentDidMount() {
+    axios
+      .get("/ingredients.json")
+      .then((res) => {
+        this.setState({ ingredients: res.data });
+      })
+      .catch((err) => {
+        this.setState({ errMsg: "Network load error ingredients" });
+      });
+  }
   updatePurchaseState(ingredients) {
     const sum = lodash.values(ingredients).reduce((sum, el) => {
       return sum + el;
@@ -122,23 +128,43 @@ class BurgerBuilder extends Component {
     this.setState({ errMsg: "" });
   };
   render() {
-    let orderSummary = (
-      <OrderSummary
-        ingredients={this.state.ingredients}
-        purchaseCancelled={this.purchaseCancelHandler}
-        purchaseContinued={this.purchaseContinueHandler}
-        price={this.state.totalPrice.toFixed(2)}
-      />
-    );
-    if (this.state.loading) {
-      orderSummary = <CircularProgress />;
-    }
+    let orderSummary=null;
+    
     const disabledInfo = {
       ...this.state.ingredients,
     };
     for (let key in disabledInfo) {
       disabledInfo[key] = disabledInfo[key] <= 0;
     }
+    let burgerComp = this.state.errMsg.length==0?<CircularProgress />:null;
+    if (this.state.ingredients != null) {
+      burgerComp = (
+        <HDiv>
+          <Burger ingredients={this.state.ingredients} />
+          <BuildControls
+            ingredientAdded={this.addIngredientHandler}
+            ingredientRemoved={this.removeIngredientHandler}
+            disabled={disabledInfo}
+            price={this.state.totalPrice.toFixed(2)}
+            purchasable={this.state.purchasable}
+            isOrdered={this.purchaseHandler}
+          />
+        </HDiv>
+      );
+      orderSummary = (
+        <OrderSummary
+          ingredients={this.state.ingredients}
+          purchaseCancelled={this.purchaseCancelHandler}
+          purchaseContinued={this.purchaseContinueHandler}
+          price={this.state.totalPrice.toFixed(2)}
+        />
+      );
+      if (this.state.loading) {
+        orderSummary = <CircularProgress />;
+      }
+
+    }
+
     return (
       <HDiv>
         {this.state.errMsg.length > 0 ? (
@@ -165,15 +191,7 @@ class BurgerBuilder extends Component {
             <Alert onClose={this.closeAlert}>You want to continue !</Alert>
           ) : null}
         </Modal>
-        <Burger ingredients={this.state.ingredients} />
-        <BuildControls
-          ingredientAdded={this.addIngredientHandler}
-          ingredientRemoved={this.removeIngredientHandler}
-          disabled={disabledInfo}
-          price={this.state.totalPrice.toFixed(2)}
-          purchasable={this.state.purchasable}
-          isOrdered={this.purchaseHandler}
-        />
+        {burgerComp}
       </HDiv>
     );
   }
