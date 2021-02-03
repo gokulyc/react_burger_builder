@@ -57,39 +57,53 @@ class BurgerBuilder extends Component {
     this.setState({ isPurchasing: false });
   };
   purchaseContinueHandler = () => {
-    this.setState((prevState) => {
-      return { ...prevState, loading: true };
-    });
-    const order = {
-      ingredients: this.state.ingredients,
-      price: this.state.totalPrice.toFixed(2),
-      customer: {
-        name: "gokul",
-        address: {
-          zipCode: "500020",
-          country: "India",
-        },
-        email: "dummy@d.com",
-      },
-      deliveryMethod: "fastest",
-    };
-    // console.log(axios.getUri());
-    axios
-      .post("/orders.json", order)
-      .then((res) => {
-        this.setState({ loading: false, isPurchasing: false });
-      })
-      .catch((err) => {
-        this.setState({
-          loading: false,
-          isPurchasing: false,
-          errMsg: err.message,
-        });
-      });
-    this.setState((prevState) => {
-      return { ...prevState, showContinue: true };
-    });
+    // this.setState((prevState) => {
+    //   return { ...prevState, loading: true };
+    // });
+    // const order = {
+    //   ingredients: this.state.ingredients,
+    //   price: this.state.totalPrice.toFixed(2),
+    //   customer: {
+    //     name: "gokul",
+    //     address: {
+    //       zipCode: "500020",
+    //       country: "India",
+    //     },
+    //     email: "dummy@d.com",
+    //   },
+    //   deliveryMethod: "fastest",
+    // };
+    // // console.log(axios.getUri());
+    // axios
+    //   .post("/orders.json", order)
+    //   .then((res) => {
+    //     this.setState({ loading: false, isPurchasing: false });
+    //   })
+    //   .catch((err) => {
+    //     this.setState({
+    //       loading: false,
+    //       isPurchasing: false,
+    //       errMsg: err.message,
+    //     });
+    //   });
+    // this.setState((prevState) => {
+    //   return { ...prevState, showContinue: true };
+    // });
     // alert("You continue!");
+    const queryParams = [];
+    for (let key in this.state.ingredients) {
+      queryParams.push(
+        encodeURIComponent(key) +
+          "=" +
+          encodeURIComponent(this.state.ingredients[key])
+      );
+    }
+    queryParams.push('price=' + this.state.totalPrice);
+    const queryString = queryParams.join("&");
+    this.props.history.push({
+      pathname: "/checkout",
+      search: "?" + queryString,
+    });
   };
   closeAlert = () => {
     this.setState({ showContinue: false });
@@ -128,15 +142,16 @@ class BurgerBuilder extends Component {
     this.setState({ errMsg: "" });
   };
   render() {
-    let orderSummary=null;
-    
+    let orderSummary = null;
+
     const disabledInfo = {
       ...this.state.ingredients,
     };
     for (let key in disabledInfo) {
       disabledInfo[key] = disabledInfo[key] <= 0;
     }
-    let burgerComp = this.state.errMsg.length==0?<CircularProgress />:null;
+    let burgerComp =
+      this.state.errMsg.length === 0 ? <CircularProgress /> : null;
     if (this.state.ingredients != null) {
       burgerComp = (
         <HDiv>
@@ -162,7 +177,6 @@ class BurgerBuilder extends Component {
       if (this.state.loading) {
         orderSummary = <CircularProgress />;
       }
-
     }
 
     return (
