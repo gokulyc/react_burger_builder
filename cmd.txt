@@ -4,3 +4,4 @@ cd my-app
 
 
 yarn add react-router-dom
+yarn add redux react-redux

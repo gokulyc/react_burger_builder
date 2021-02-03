@@ -13,6 +13,9 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 
 import axios from "../../axios-orders";
 
+import {connect} from "react-redux";
+import * as actionTypes from "../../store/actions";
+
 const INGREDIENT_PRICES = {
   salad: 0.5,
   cheese: 0.4,
@@ -25,7 +28,6 @@ class BurgerBuilder extends Component {
   //     this.state = {...}
   // }
   state = {
-    ingredients: null,
     totalPrice: 4,
     purchasable: false,
     isPurchasing: false,
@@ -35,14 +37,14 @@ class BurgerBuilder extends Component {
   };
 
   componentDidMount() {
-    axios
-      .get("/ingredients.json")
-      .then((res) => {
-        this.setState({ ingredients: res.data });
-      })
-      .catch((err) => {
-        this.setState({ errMsg: "Network load error ingredients" });
-      });
+    // axios
+    //   .get("/ingredients.json")
+    //   .then((res) => {
+    //     this.setState({ ingredients: res.data });
+    //   })
+    //   .catch((err) => {
+    //     this.setState({ errMsg: "Network load error ingredients" });
+    //   });
   }
   updatePurchaseState(ingredients) {
     const sum = lodash.values(ingredients).reduce((sum, el) => {
@@ -145,20 +147,20 @@ class BurgerBuilder extends Component {
     let orderSummary = null;
 
     const disabledInfo = {
-      ...this.state.ingredients,
+      ...this.props.ings,
     };
     for (let key in disabledInfo) {
       disabledInfo[key] = disabledInfo[key] <= 0;
     }
     let burgerComp =
       this.state.errMsg.length === 0 ? <CircularProgress /> : null;
-    if (this.state.ingredients != null) {
+    if (this.props.ings) {
       burgerComp = (
         <HDiv>
-          <Burger ingredients={this.state.ingredients} />
+          <Burger ingredients={this.props.ings} />
           <BuildControls
-            ingredientAdded={this.addIngredientHandler}
-            ingredientRemoved={this.removeIngredientHandler}
+            ingredientAdded={this.props.onIngredientAdded}
+            ingredientRemoved={this.props.onIngredientRemoved}
             disabled={disabledInfo}
             price={this.state.totalPrice.toFixed(2)}
             purchasable={this.state.purchasable}
@@ -168,7 +170,7 @@ class BurgerBuilder extends Component {
       );
       orderSummary = (
         <OrderSummary
-          ingredients={this.state.ingredients}
+          ingredients={this.props.ings}
           purchaseCancelled={this.purchaseCancelHandler}
           purchaseContinued={this.purchaseContinueHandler}
           price={this.state.totalPrice.toFixed(2)}
@@ -210,5 +212,19 @@ class BurgerBuilder extends Component {
     );
   }
 }
+const mapStateToProps=state=>{
+  return {
+    ings:state.ingredients,
+    price: state.totalPrice
+  };
+}
 
-export default BurgerBuilder;
+const mapDispatchToProps=dispatch=>{
+  return {
+    onIngredientAdded:(ingName)=>dispatch({type:actionTypes.ADD_INGREDIENT,ingredientName:ingName}),
+    onIngredientRemoved:(ingName)=>dispatch({type:actionTypes.REMOVE_INGREDIENT,ingredientName:ingName}),
+
+  }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(BurgerBuilder);
