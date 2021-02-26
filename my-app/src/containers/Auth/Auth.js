@@ -3,6 +3,7 @@ import Input from "../../components/UI/Input/Input";
 import Button from "../../components/UI/Button/Button";
 import classes from "./Auth.css";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import { Redirect } from "react-router-dom";
 //redux
 import { connect } from "react-redux";
 import * as actions from "../../store/actions";
@@ -41,6 +42,11 @@ class Auth extends Component {
         },
         isSignup: true,
     };
+    componentDidMount(){
+        if (!this.props.buildingBurger && this.props.authRedirectPath !=="/"){
+            this.props.onSetAuthRedirectPath();
+        }
+    }
     switchAuthModeHandler = () => {
         this.setState((prevState) => {
             return { isSignup: !prevState.isSignup };
@@ -104,6 +110,10 @@ class Auth extends Component {
 
     render() {
         const formElementsArray = [];
+        let authRedirect = null;
+        if (this.props.isAuthenticated) {
+            authRedirect = <Redirect to={this.props.authRedirectPath} />;
+        }
         for (let key in this.state.controls) {
             formElementsArray.push({
                 id: key,
@@ -127,14 +137,13 @@ class Auth extends Component {
         if (this.props.loading) {
             form = <CircularProgress />;
         }
-        let errorMessage=null;
-        if(this.props.error){
-            errorMessage=(
-                <p>{this.props.error.message}</p>
-            );
+        let errorMessage = null;
+        if (this.props.error) {
+            errorMessage = <p>{this.props.error.message}</p>;
         }
         return (
             <div className={classes.Auth}>
+                {authRedirect}
                 {errorMessage}
                 <form onSubmit={this.submitHandler}>
                     {form}
@@ -154,6 +163,10 @@ const mapStateToProps = (state) => {
     return {
         loading: state.auth.loading,
         error: state.auth.error,
+        isAuthenticated: state.auth.token !== null,
+        buildingBurger:state.burgerBuilder.building,
+        authRedirectPath:state.auth.authRedirectUri,
+
     };
 };
 
@@ -161,6 +174,7 @@ const mapDispatchToProps = (dispatch) => {
     return {
         onAuth: (email, password, isSignUp) =>
             dispatch(actions.authenticate(email, password, isSignUp)),
+        onSetAuthRedirectPath : ()=> dispatch(actions.setAuthRedirectUrl("/")),
     };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(Auth);
