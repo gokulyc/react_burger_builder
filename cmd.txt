@@ -11,3 +11,11 @@ yarn add react-icons
 
 npx sb init
 yarn storybook || npm run storybook
+
+
+
+====================================
+
+https://stormpath.com/blog/token-auth-spa
+
+https://firebase.google.com/docs/reference/rest/auth/
