@@ -11,9 +11,9 @@ import * as actions from "./store/actions/index";
 import { connect } from "react-redux";
 
 class App extends Component {
-    componentDidMount () {
+    componentDidMount() {
         this.props.onTryAutoSignup();
-      }
+    }
     render() {
         let routes = (
             <Switch>
@@ -25,6 +25,7 @@ class App extends Component {
         if (this.props.isAuthenticated) {
             routes = (
                 <Switch>
+                    <Route path="/auth" component={Auth} />
                     <Route path="/logout" component={Logout} />
                     <Route path="/checkout" component={Checkout} />
                     <Route path="/orders" component={Orders} />

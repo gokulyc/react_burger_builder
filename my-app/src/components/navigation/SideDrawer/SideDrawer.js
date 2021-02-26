@@ -14,7 +14,7 @@ const sideDrawer = ( props ) => {
     return (
         <HDiv>
             <Backdrop show={props.open} clicked={props.closed}/>
-            <div className={attachedClasses.join(' ')}>
+            <div className={attachedClasses.join(' ')} onClick={props.closed}>
                 <div className={classes.Logo}>
                 <a href="/"><Logo height="100%" /></a>
                     {/* <Logo height="100%"/> */}
