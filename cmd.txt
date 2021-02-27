@@ -14,8 +14,24 @@ yarn storybook || npm run storybook
 
 yarn add immer
 
+yarn add formik
+optional deps https://github.com/jquense/yup 
+
 ====================================
+# Links   
 
-https://stormpath.com/blog/token-auth-spa
+## Firebase   
 
-https://firebase.google.com/docs/reference/rest/auth/
+https://stormpath.com/blog/token-auth-spa   
+
+https://firebase.google.com/docs/reference/rest/auth/   
+
+## immer  
+ 
+https://www.smashingmagazine.com/2020/06/better-reducers-with-immer/   
+
+## forms   
+
+https://medium.com/frontend-digest/the-best-react-form-library-to-use-in-2020-11e93c267e4   
+
+https://formik.org/docs/overview  
