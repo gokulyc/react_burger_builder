@@ -1,4 +1,5 @@
 import * as actionTypes from '../actions/actionTypes';
+import produce from "immer";
 
 const initialState = {
     ingredients: null,
@@ -13,51 +14,35 @@ const INGREDIENT_PRICES = {
     meat: 1.3,
     bacon: 0.7
 };
-
-const reducer = ( state = initialState, action ) => {
+const reducer = produce( (draft, action)  => {
     switch ( action.type ) {
         case actionTypes.ADD_INGREDIENT:
-            return {
-                ...state,
-                ingredients: {
-                    ...state.ingredients,
-                    [action.ingredientName]: state.ingredients[action.ingredientName] + 1
-                },
-                totalPrice: state.totalPrice + INGREDIENT_PRICES[action.ingredientName],
-                building:true,
-            };
+            draft.ingredients[action.ingredientName]=draft.ingredients[action.ingredientName]+1;
+            draft.totalPrice=draft.totalPrice + INGREDIENT_PRICES[action.ingredientName];
+            draft.building=true;
+            return draft;
         case actionTypes.REMOVE_INGREDIENT:
-            return {
-                ...state,
-                ingredients: {
-                    ...state.ingredients,
-                    [action.ingredientName]: state.ingredients[action.ingredientName] - 1
-                },
-                totalPrice: state.totalPrice - INGREDIENT_PRICES[action.ingredientName],
-                building:true,
-
-            };
+            draft.ingredients[action.ingredientName]=draft.ingredients[action.ingredientName]-1;
+            draft.totalPrice=draft.totalPrice - INGREDIENT_PRICES[action.ingredientName];
+            draft.building=true;
+            return draft;
         case actionTypes.SET_INGREDIENTS:
-            return {
-                ...state,
-                ingredients: {
-                    salad: action.ingredients.salad,
-                    bacon: action.ingredients.bacon,
-                    cheese: action.ingredients.cheese,
-                    meat: action.ingredients.meat
-                },
-                totalPrice:4,
-                error: false,
-                building:false,
+            draft.ingredients={
+                salad: action.ingredients.salad,
+                bacon: action.ingredients.bacon,
+                cheese: action.ingredients.cheese,
+                meat: action.ingredients.meat
             };
+            draft.totalPrice=4;
+            draft.error=false;
+            draft.building=false;
+            return draft;
         case actionTypes.FETCH_INGREDIENTS_FAILED:
-            return {
-                ...state,
-                error: true
-            };
+            draft.error=true;
+            return draft;
         default:
-            return state;
+            return draft;
     }
-};
+},initialState);
 
 export default reducer;
