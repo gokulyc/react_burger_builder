@@ -15,11 +15,8 @@ import { connect } from "react-redux";
 // import * as actionTypes from "../../store/actions";
 import * as actions from "../../store/actions/index";
 
-class BurgerBuilder extends Component {
-  // constructor(props) {
-  //     super(props);
-  //     this.state = {...}
-  // }
+export class BurgerBuilder extends Component {
+
   state = {
     isPurchasing: false,
     showContinue: false,
@@ -28,7 +25,6 @@ class BurgerBuilder extends Component {
   };
 
   componentDidMount() {
-    // console.log(this.props);
     this.props.onInitIngredients();
   }
   updatePurchaseState(ingredients) {
@@ -81,7 +77,7 @@ class BurgerBuilder extends Component {
             ingredientAdded={this.props.onIngredientAdded}
             ingredientRemoved={this.props.onIngredientRemoved}
             disabled={disabledInfo}
-            price={this.props.price.toFixed(2)}
+            price={this.props.price}
             purchasable={this.updatePurchaseState(this.props.ings)}
             isOrdered={this.purchaseHandler}
             isAuth={this.props.isAuthenticated}
@@ -93,7 +89,7 @@ class BurgerBuilder extends Component {
           ingredients={this.props.ings}
           purchaseCancelled={this.purchaseCancelHandler}
           purchaseContinued={this.purchaseContinueHandler}
-          price={this.props.price.toFixed(2)}
+          price={this.props.price}
         />
       );
       if (this.state.loading) {
@@ -135,7 +131,7 @@ class BurgerBuilder extends Component {
 const mapStateToProps = (state) => {
   return {
     ings: state.burgerBuilder.ingredients,
-    price: state.burgerBuilder.totalPrice,
+    price: state.burgerBuilder.totalPrice.toFixed(2),
     error: state.burgerBuilder.error,
     isAuthenticated: state.auth.token !== null,
   };
