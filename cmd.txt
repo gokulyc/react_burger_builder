@@ -20,6 +20,7 @@ yarn add @types/jest || for auto completion in vscode
 yarn add formik
 optional deps https://github.com/jquense/yup 
 
+yarn add classnames
 ====================================
 # Links   
 
